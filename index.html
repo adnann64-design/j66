@@ -437,7 +437,30 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 // ضع رابط الـ Cloudflare Worker هنا بعد نشره
 // مثال: https://gold-proxy.اسمك.workers.dev
 // ════════════════════════════════════════════════════════
-const WORKER_URL = 'https://gold-proxy.YOUR-NAME.workers.dev';
+const WORKER_URL =   try {
+    const r = await fetch('https://www.goldapi.io/api/XAU/USD', {
+      headers: {
+        'x-access-token': 'goldapi-8xgjsmm8nx7u2-io',
+        'Content-Type': 'application/json'
+      }
+    })
+    const d = await r.json()
+    if (d && d.price && d.price > 100) {
+      return new Response(JSON.stringify({
+        ok: true,
+        price:  d.price,
+        open:   d.open_price   || d.price,
+        high:   d.high_price   || d.price,
+        low:    d.low_price    || d.price,
+        bid:    d.bid          || d.price - 0.5,
+        ask:    d.ask          || d.price + 0.5,
+        change: d.ch           || 0,
+        change_pct: d.chp      || 0,
+        ts:     d.timestamp    || Date.now(),
+        source: 'GoldAPI.io ✅'
+      }), { headers: cors })
+    }
+  } catch (e) {}
 // ════════════════════════════════════════════════════════
 
 // NAV
